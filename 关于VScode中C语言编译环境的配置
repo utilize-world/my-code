@@ -1,0 +1,4 @@
+对于#include这种头文件报错要求更新IncludePath路径，则在终端命令台上输入 gcc -v -E -x c++ - 
+找到#include "..." search starts here:
+    #include <...> search starts here:
+两行下面的所有路径，并复制到配置C编译环境中的包含路径一栏进行粘贴即可
