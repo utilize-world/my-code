@@ -165,6 +165,88 @@ root.mainloop()
 
 
 
+修改版如下
+
+from tkinter import *
+#制作简单计算器
+root=Tk()
+root.title('简单计算器')
+root.geometry('800x400')
+
+result=StringVar()
+result.set('')
+result_label=Label(root,textvariable=result,font=('Helvetica',20),width=34,anchor='e')
+result_label.grid(column=0,row=1,columnspan=4)
 
 
+expr=StringVar()
+expr.set('')
+expr_label=Label(root,textvariable=expr,font=('Helvetica',10),width=64,fg=('#666666'),anchor='e')
+expr_label.grid(column=0,row=0,columnspan=4)
 
+
+judge=True
+buttons=(('CE','C','<-','/'),
+         ('7','8','9','*'),
+         ('4','5','6','-'),
+         ('1','2','3','+'),
+         ('±','0','.','=')
+         )#用元组循坏设置按钮位置
+
+
+def click(key):
+    global judge
+    if key=='=':
+        resultExpr=expr.get()
+        resultnum=eval(resultExpr)
+        result.set(resultnum)
+        expr.set(resultnum)
+        judge=True
+    elif key in'+-*/':
+        tempExpr=expr.get()
+        if len(tempExpr)>1 and tempExpr[len(tempExpr)-1] in '+-*/':#这里发现如果连续输入两次符号会出现错误，所以进行纠正，保证两个数间仅有一种符号
+            expr.set(tempExpr[:-1])
+        resultExpr=expr.get()+key
+        expr.set(resultExpr)
+        judge=True
+    elif key=='C':
+        result.set('')
+        expr.set('')
+    elif key=='CE':
+        length = len(result.get())
+        tempexpr = expr.get()
+        expr.set(tempexpr[:-length])
+        result.set('')
+    elif key=='<-':
+        oldexpr =expr.get()
+        oldresult = result.get()
+        if len(oldexpr)==1:
+            newexpr=""
+            result.set('')
+        else :
+            newexpr=oldexpr[:-1]
+            result.set(oldresult[:-1])
+        expr.set(newexpr)
+    elif key=='±':
+        tempResult=expr.get()
+        expr.set('-'+'('+tempResult+')')
+    else:
+        expr.set(expr.get() + key)
+        if judge==True:
+            result.set(0)
+            judge=False
+        oldnum=result.get()
+        if oldnum=='0':
+            result.set(key)
+        else:
+            newnum=oldnum+key
+            result.set(newnum)
+
+
+for r in range(5):
+    for i in range(4):
+        def cmd(key=buttons[r][i]):
+            click(key)
+        b=Button(root,text=buttons[r][i],width=16,command=cmd)
+        b.grid(row=r+2,column=i)
+root.mainloop()
