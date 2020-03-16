@@ -1,0 +1,160 @@
+import pygame,sys
+from pygame.locals import *
+# from sys import exit
+
+pygame.init()
+screen_size = (400, 400)   # #屏幕为400 X 400大小
+screen = pygame.display.set_mode(screen_size, 0, 32)
+screen_rect = screen.get_rect()
+rbg = (255, 255, 255)   # #设定RGB数值为白色
+text_color = (0, 0, 0)
+clock = pygame.time.Clock()
+'''
+pygame.mouse.set_visible(0)
+mouse_posX = pygame.mouse.get_pos()[0]
+mouse_posY = pygame.mouse.get_pos()[1]  # #获得鼠标的位置
+pygame.mouse.set_pos(mouse_posX, mouse_posY)
+'''
+all_sprites = pygame.sprite.Group()
+'''
+board = pygame.sprite.Sprite()      # #创建Sprite类的一个实例
+board_image = pygame.image.load('D:/photo/Saved Pictures/board.jpg')
+board.rect = board_image.get_rect()
+board.rect.x = 200
+board.rect.y = screen_size[1] - board.rect.height
+'''
+class people(pygame.sprite.Sprite):
+    def __init__(self):
+class board(pygame.sprite.Sprite):
+    def __init__(self,location=[0,0]):
+        self.image=pygame.image.load('D:/pycharmWork/learnProject/board.jpg')
+        self.rect=self.image.get_rect()
+        self.rect.left, self.rect.top=location
+
+
+class Ball(pygame.sprite.Sprite):
+    # 定义一个滚球的类
+    def __init__(self, pos, speed):
+        pygame.sprite.Sprite.__init__(self)
+        '''
+        self.x_speed = speed[0]
+        self.y_speed = speed[1]
+        '''
+        self.speed=speed
+        self.image = pygame.image.load('D:/pycharmWork/learnProject/ball.jpg').convert_alpha()
+        self.rect = self.image.get_rect()    # #加载图片
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+    def move(self):
+        '''
+        passed_time = clock.tick(60)  # #控制帧率最大为60FPS
+        self.rect.x += int(self.x_speed*passed_time / 1000)   # #除以1000是将毫秒转化为秒，这里速度的单位是秒每像素
+        self.rect.y += int(self.y_speed*passed_time / 1000)
+'''
+        self.rect=self.rect.move(self.speed)
+        if self.rect.left<0 or self.rect.right>screen_size[1]:
+            self.speed[0]=-self.speed[0]
+        if self.rect.top<0:
+            self.speed[1]=-self.speed[1]
+'''   def update(self):
+        #  以下是用来控制小球碰到边界时的情况，速度反向       
+        if self.rect.x > screen_size[0] - self.rect.width:
+            self.rect.x = screen_size[0] - self.rect.width
+            self.x_speed = -self.x_speed
+        if self.rect.y > screen_size[1] - self.rect.height:
+            self.rect.y = screen_size[1] - self.rect.height
+            # self.y_speed = -self.y_speed
+            all_sprites.remove(self)
+        if self.rect.x < 0:
+            self.rect.x = 0
+            self.x_speed = -self.x_speed
+        if self.rect.y < 0:
+            self.rect.y = 0
+            self.y_speed = -self.y_speed
+'''
+
+score_count = 0     # #记录分数
+ball = Ball(pos=[140, 0], speed=[5, 5])
+# 创建一个Ball类的实例，并初始化其位置和速度
+#all_sprites.add(ball,board)
+board=board([250,250])
+all_sprites.add(ball)
+judge = False
+
+
+def print_text():
+    global score_count  # #打印结束文字用
+    text1 = 'YOU LOST'
+    text2 = f'your final score is {score_count}'
+    font1 = pygame.font.SysFont('arial', 40, True)
+    font2 = pygame.font.SysFont('arial', 30, False, True)
+    text1_surface = font1.render(text1, 1, text_color)
+    text2_surface = font2.render(text2, 1, text_color)
+    screen.blit(text1_surface, (50, 50))
+    screen.blit(text2_surface, (100, 120))
+    pygame.display.update()
+
+
+'''
+def crash_detect():
+    global score_count
+    board.rect.x = pygame.mouse.get_pos()[0]
+    board.rect.x += pygame.mouse.get_rel()[0]   # #鼠标的移动就是底板的移动
+    if 0 >= board.rect.x:
+        board.rect.x = 0
+    if board.rect.x >= screen_size[0] - board.rect.width:
+        board.rect.x = screen_size[0] - board.rect.width
+    if pygame.sprite.collide_rect(ball, board):     # #判断两个矩形是否相撞
+        score_count += 1
+        if score_count % 5 == 0:
+            ball.x_speed *= 1.2     # #随着分数增加，速度会越来越快，一般三十分已经接不住了
+            ball.y_speed *= 1.2
+        ball.y_speed *= -1
+'''
+
+
+while judge is False:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            judge = True
+        if event.type==pygame.MOUSEMOTION:
+            board.rect.centerx=event.pos[0]
+    if pygame.sprite.spritecollide(board,all_sprites,False):
+        ball.speed[1]=-ball.speed[1]
+        score_count+=1
+    if ball.rect.top>=screen.get_rect().bottom:
+        print_text()
+        pygame.time.delay(20000)
+        judge=True
+    clock.tick(60)
+    score_font = pygame.font.SysFont('arial', 24)
+    score_text = f'score: {score_count}'
+    score_surface = score_font.render(score_text, 1, text_color)
+    ball.move()
+    screen.fill(rbg)    # #填涂屏幕
+    screen.blit(score_surface, (0, 0))
+    all_sprites.update()    # #容器内所有sprite调用自身的update方法
+    screen.blit(board.image, board.rect)  # #画板子
+    screen.blit(ball.image, ball.rect)     # #画出小球
+    #  这里一定要注意，屏幕要在小球前面填涂，否则会直接覆盖后面物体的图像，在这里卡了半个小时
+    pygame.display.flip()     # #更新屏幕显示
+    
+'''    
+            elif event.key == K_DOWN and ball.y_speed < 200:
+                ball.y_speed += 30
+            elif event.key == K_UP:
+                ball.y_speed -= 30
+            elif event.key == K_RIGHT and ball.x_speed < 200:
+                ball.x_speed += 30
+            elif event.key == K_LEFT:
+                ball.x_speed -= 30
+            '''
+#    crash_detect()
+'''    if ball not in all_sprites:
+        print_text()
+        pygame.time.delay(2000)     # #延迟2秒，至少看清最后的文字
+        judge = True
+'''
+sys.exit()
+pygame.quit()
